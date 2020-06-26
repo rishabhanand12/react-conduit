@@ -11,7 +11,7 @@ export default function MainArticles(props) {
     <>
       <section className="main-articles">
         <div className="articles">
-          <span onClick={() => props.clicked()}>Global Feed</span>
+          <span onClick={() => props.clicked()}>{props.defaultTab}</span>
           <span>{tagtab}</span>
           {props.articles.map((elem) => {
             return (

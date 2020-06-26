@@ -33,9 +33,15 @@ class Userprofile extends React.Component {
       });
   }
   render() {
+    // var defaultTab = "My Articles";
     return (
       <>
-        <MainArticles articles={this.state.userArticles} />
+        <section className="profile-section">
+          <MainArticles
+            defaultTab="My Articles"
+            articles={this.state.userArticles}
+          />
+        </section>
       </>
     );
   }

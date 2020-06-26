@@ -5,7 +5,9 @@ import Hero from "./Hero";
 import MainArticles from "./Mainarticles";
 import Tags from "./Tags";
 import Userprofile from "./Userprofile";
-import Article from "./Article"
+import Article from "./Article";
+import Login from "./Login";
+import Signup from "./Signup";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -14,46 +16,55 @@ export default class App extends React.Component {
       dataFetched: false,
       activeTab: "",
       tagList: null,
-      articleTag: null,
       articlesToRender: null,
       pageOffset: 0,
+      isLoggedIn: false,
+      loggedInUser: null,
+      userArticles: null,
     };
   }
 
   componentDidMount() {
+    var authToken = localStorage.getItem("token");
+    if (authToken) {
+      this.setState({
+        isLoggedIn: true,
+      });
+      fetch("https://conduit.productionready.io/api/user", {
+        headers: {
+          authorization: `Token ${authToken}`,
+        },
+      })
+        .then((Response) => Response.json())
+        .then((data) => {
+          this.setState({
+            loggedInUser: data.user,
+          });
+        })
+        .catch((err) => console.err(err));
+    }
+
     let articlesUrl =
       "https://conduit.productionready.io/api/articles?limit=10&offset=0";
     fetch(articlesUrl)
       .then((response) => response.json())
       .then((data) => {
         // console.log(data);
-        this.setState(
-          {
-            articlesToRender: data.articles,
-            dataFetched: true,
-            activeTab: null,
-          },
-          () => {
-            sessionStorage.setItem(
-              "articlesToRender",
-              this.state.articlesToRender
-            );
-          }
-        );
+        this.setState({
+          articlesToRender: data.articles,
+          dataFetched: true,
+          activeTab: null,
+        });
       });
+
     let tagsUrl = "https://conduit.productionready.io/api/tags";
     fetch(tagsUrl)
       .then((Response) => Response.json())
       .then((data) => {
         console.log(data);
-        this.setState(
-          {
-            tagList: data.tags,
-          },
-          () => {
-            sessionStorage.setItem("tagList", this.state.tagList);
-          }
-        );
+        this.setState({
+          tagList: data.tags,
+        });
       });
   }
 
@@ -97,12 +108,16 @@ export default class App extends React.Component {
     }
     return (
       <>
-        <Header />
+        <Header
+          isLoggedIn={this.state.isLoggedIn}
+          loggedInUser={this.state.loggedInUser}
+        />
         <Hero />
         <Switch>
-        <Route exact path="/">
+          <Route exact path="/">
             <div className="main-section container">
               <MainArticles
+                defaultTab="Global feed"
                 clicked={() => this.handleGlobalClicked()}
                 active={this.state.activeTab}
                 articles={this.state.articlesToRender}
@@ -113,13 +128,22 @@ export default class App extends React.Component {
               />
             </div>
           </Route>
-          <Route path = "/profile/:id">
-            <Userprofile />
+          <Route path="/profile/:id">
+            <div className="container">
+              <Userprofile />
+            </div>
           </Route>
-          <Route path = "/article/:id">
-            <Article />
+          <Route path="/article/:id">
+            <div className="container">
+              <Article />
+            </div>
           </Route>
-          
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/signup">
+            <Signup />
+          </Route>
         </Switch>
       </>
     );

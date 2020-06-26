@@ -42,7 +42,7 @@ class Article extends React.Component {
         <section className="article">
           <article className="article-box">
             <h2>{article.title}</h2>
-            <img src={article.author.image} />
+            <img src={article.author.image} alt="" />
             <h3>{article.author.username}</h3>
             <h4>{new Date(article.createdAt).toDateString()}</h4>
             <p>{article.description}</p>
